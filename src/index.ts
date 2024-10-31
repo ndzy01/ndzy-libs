@@ -31,7 +31,7 @@ const init = async (directory: string, idObj: { maxId: number }, baseUrl: string
   }
 };
 
-export const musicStart = async (baseUrl: string, directory: string) => {
+export const musicStartTask = async (baseUrl: string, directory: string) => {
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, {recursive: true});
   }
@@ -56,4 +56,44 @@ export const musicStart = async (baseUrl: string, directory: string) => {
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({version: new Date().valueOf()}, null, 2));
 
   console.log('------ndzy------', '初始化成功', '------ndzy------');
+};
+
+const updateFiles = async (directory: string, name: string, baseUrl: string) => {
+  const files = fs.readdirSync(directory);
+
+  for (let index = 0; index < files.length; index++) {
+    const file = files[index];
+    const filePath = path.join(directory, file);
+    const stat = fs.statSync(filePath);
+
+    if (stat.isDirectory()) {
+      await updateFiles(filePath, name, baseUrl); // 如果是目录，则递归调用
+    } else {
+      const fileType = file.substring(file.lastIndexOf('.') + 1);
+      const [id, _] = path.basename(filePath, path.extname(filePath)).split('_');
+
+      if (fileType === 'mp3' || fileType === 'flac') {
+        const newPath = path.dirname(filePath) + `/${id}_${uuidv4()}.${fileType}`;
+        fs.renameSync(filePath, newPath);
+        const name = fs.readFileSync(path.dirname(filePath) + `/name.txt`, {encoding: 'utf-8'});
+
+        await axios.patch(`${baseUrl}/music/${id}`, {
+          url: `https://www.ndzy01.com/${name}/${path.relative(__dirname + '/resource/', newPath)}`,
+          fileType,
+          name,
+        });
+      }
+    }
+  }
+};
+
+export const musicUpdateFilesTask = async (directory: string, name: string, baseUrl: string) => {
+  await updateFiles(directory, name, baseUrl);
+
+  fs.writeFileSync(`${directory}/version.json`, JSON.stringify({version: new Date().valueOf()}, null, 2));
+};
+
+export const musicEndTask = async (baseUrl: string) => {
+  await axios(`${baseUrl}/music/update/github/data`);
+  console.log('------ndzy------', '完成', '------ndzy------');
 };
