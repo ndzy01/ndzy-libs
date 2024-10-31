@@ -52,7 +52,8 @@ var init = async (directory, idObj, baseUrl) => {
       const arr = import_path.default.basename(filePath, import_path.default.extname(filePath)).split("_");
       if (fileType === "mp3" || fileType === "flac") {
         if (arr.length !== 2) {
-          await import_axios.default.post(`${baseUrl}/music`, { name: "test" });
+          const data = await import_axios.default.post(`${baseUrl}/music`, { name: "test" });
+          console.log("------ndzy------\u65B0\u589Emusic", data, "------ndzy------");
           idObj.maxId++;
           const newPath = import_path.default.dirname(filePath) + `/${idObj.maxId}_${(0, import_uuid.v4)()}.${fileType}`;
           fs.renameSync(filePath, newPath);
@@ -63,7 +64,7 @@ var init = async (directory, idObj, baseUrl) => {
   }
 };
 var musicInitTask = async (directory, baseUrl) => {
-  console.log("------ndzy------", directory, baseUrl, "------ndzy------");
+  console.log("------ndzy------\u5165\u53C2", directory, baseUrl, "------ndzy------");
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, { recursive: true });
   }
@@ -71,16 +72,14 @@ var musicInitTask = async (directory, baseUrl) => {
   const {
     data: { data }
   } = await (0, import_axios.default)(`${baseUrl}/music?sort=id%2CDESC&limit=1`);
-  console.log("------ndzy------", data, "------ndzy------");
   if (data) {
     maxId = data[0].id;
   }
-  if (data) {
-    maxId = data[0].id;
-  }
+  console.log("------ndzy------", maxId, data, "------ndzy------");
   await init(directory, { maxId }, baseUrl);
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({ version: (/* @__PURE__ */ new Date()).valueOf() }, null, 2));
-  console.log("------ndzy------", "\u521D\u59CB\u5316\u6210\u529F", "------ndzy------");
+  console.log("------ndzy------", "\u66F4\u65B0\u7248\u672C\u53F7", "------ndzy------");
+  console.log("------ndzy------", "\u521D\u59CB\u5316\u5B8C\u6210", "------ndzy------");
 };
 var updateFiles = async (directory, name, baseUrl) => {
   const files = fs.readdirSync(directory);
@@ -97,11 +96,16 @@ var updateFiles = async (directory, name, baseUrl) => {
         const newPath = import_path.default.dirname(filePath) + `/${id}_${(0, import_uuid.v4)()}.${fileType}`;
         fs.renameSync(filePath, newPath);
         const name2 = fs.readFileSync(import_path.default.dirname(filePath) + `/name.txt`, { encoding: "utf-8" });
-        await import_axios.default.patch(`${baseUrl}/music/${id}`, {
+        const data = await import_axios.default.patch(`${baseUrl}/music/${id}`, {
           url: `https://www.ndzy01.com/${name2}/${import_path.default.relative(__dirname + "/resource/", newPath)}`,
           fileType,
           name: name2
         });
+        console.log("------ndzy------\u65B0\u589Emusic", data, {
+          url: `https://www.ndzy01.com/${name2}/${import_path.default.relative(__dirname + "/resource/", newPath)}`,
+          fileType,
+          name: name2
+        }, "------ndzy------");
       }
     }
   }
@@ -110,6 +114,8 @@ var musicUpdateTask = async (directory, name, baseUrl) => {
   console.log("------ndzy------", directory, name, baseUrl, "------ndzy------");
   await updateFiles(directory, name, baseUrl);
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({ version: (/* @__PURE__ */ new Date()).valueOf() }, null, 2));
+  console.log("------ndzy------", "\u66F4\u65B0\u7248\u672C\u53F7", "------ndzy------");
+  console.log("------ndzy------", "\u66F4\u65B0\u5B8C\u6210", "------ndzy------");
 };
 var musicEndTask = async (baseUrl) => {
   console.log("------ndzy------", baseUrl, "------ndzy------");

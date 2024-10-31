@@ -19,7 +19,8 @@ const init = async (directory: string, idObj: { maxId: number }, baseUrl: string
 
       if (fileType === 'mp3' || fileType === 'flac') {
         if (arr.length !== 2) {
-          await axios.post(`${baseUrl}/music`, {name: 'test'});
+          const data = await axios.post(`${baseUrl}/music`, {name: 'test'});
+          console.log('------ndzy------新增music', data, '------ndzy------');
 
           idObj.maxId++;
           const newPath = path.dirname(filePath) + `/${idObj.maxId}_${uuidv4()}.${fileType}`;
@@ -32,7 +33,7 @@ const init = async (directory: string, idObj: { maxId: number }, baseUrl: string
 };
 
 export const musicInitTask = async (directory: string, baseUrl: string,) => {
-  console.log('------ndzy------', directory, baseUrl, '------ndzy------');
+  console.log('------ndzy------入参', directory, baseUrl, '------ndzy------');
 
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, {recursive: true});
@@ -43,21 +44,19 @@ export const musicInitTask = async (directory: string, baseUrl: string,) => {
     data: {data},
   } = await axios(`${baseUrl}/music?sort=id%2CDESC&limit=1`);
 
-  console.log('------ndzy------', data, '------ndzy------');
-
   if (data) {
     maxId = data[0].id;
   }
 
-  if (data) {
-    maxId = data[0].id;
-  }
+  console.log('------ndzy------', maxId, data, '------ndzy------');
 
   await init(directory, {maxId}, baseUrl);
 
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({version: new Date().valueOf()}, null, 2));
 
-  console.log('------ndzy------', '初始化成功', '------ndzy------');
+  console.log('------ndzy------', "更新版本号", '------ndzy------');
+
+  console.log('------ndzy------', '初始化完成', '------ndzy------');
 };
 
 const updateFiles = async (directory: string, name: string, baseUrl: string) => {
@@ -79,11 +78,16 @@ const updateFiles = async (directory: string, name: string, baseUrl: string) => 
         fs.renameSync(filePath, newPath);
         const name = fs.readFileSync(path.dirname(filePath) + `/name.txt`, {encoding: 'utf-8'});
 
-        await axios.patch(`${baseUrl}/music/${id}`, {
+        const data = await axios.patch(`${baseUrl}/music/${id}`, {
           url: `https://www.ndzy01.com/${name}/${path.relative(__dirname + '/resource/', newPath)}`,
           fileType,
           name,
         });
+        console.log('------ndzy------新增music', data, {
+          url: `https://www.ndzy01.com/${name}/${path.relative(__dirname + '/resource/', newPath)}`,
+          fileType,
+          name,
+        }, '------ndzy------');
       }
     }
   }
@@ -95,11 +99,16 @@ export const musicUpdateTask = async (directory: string, name: string, baseUrl: 
   await updateFiles(directory, name, baseUrl);
 
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({version: new Date().valueOf()}, null, 2));
+
+  console.log('------ndzy------', "更新版本号", '------ndzy------');
+
+  console.log('------ndzy------', '更新完成', '------ndzy------');
 };
 
 export const musicEndTask = async (baseUrl: string) => {
   console.log('------ndzy------', baseUrl, '------ndzy------');
 
   await axios(`${baseUrl}/music/update/github/data`);
+
   console.log('------ndzy------', '完成', '------ndzy------');
 };
