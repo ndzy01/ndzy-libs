@@ -97,12 +97,12 @@ var updateFiles = async (directory, githubName, baseUrl) => {
         fs.renameSync(filePath, newPath);
         const name = fs.readFileSync(import_path.default.dirname(filePath) + `/name.txt`, { encoding: "utf-8" });
         const data = await import_axios.default.patch(`${baseUrl}/music/${id}`, {
-          url: `https://www.ndzy01.com/${githubName}/${import_path.default.relative(__dirname + "/resource/", newPath)}`,
+          url: `https://www.ndzy01.com/${githubName}/${newPath.split("/resource/")[1]}`,
           fileType,
           name
         });
         console.log("------ndzy------\u66F4\u65B0music", data.data, {
-          url: `https://www.ndzy01.com/${githubName}/${import_path.default.relative(__dirname + "/resource/", newPath)}`,
+          url: `https://www.ndzy01.com/${githubName}/${newPath.split("/resource/")[1]}`,
           fileType,
           name
         }, "------ndzy------");
