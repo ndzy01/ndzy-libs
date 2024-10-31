@@ -26,7 +26,7 @@ var init = async (directory, idObj, baseUrl) => {
     }
   }
 };
-var musicStart = async (baseUrl, directory) => {
+var musicStartTask = async (directory, baseUrl) => {
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, { recursive: true });
   }
@@ -45,6 +45,40 @@ var musicStart = async (baseUrl, directory) => {
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({ version: (/* @__PURE__ */ new Date()).valueOf() }, null, 2));
   console.log("------ndzy------", "\u521D\u59CB\u5316\u6210\u529F", "------ndzy------");
 };
+var updateFiles = async (directory, name, baseUrl) => {
+  const files = fs.readdirSync(directory);
+  for (let index = 0; index < files.length; index++) {
+    const file = files[index];
+    const filePath = path.join(directory, file);
+    const stat = fs.statSync(filePath);
+    if (stat.isDirectory()) {
+      await updateFiles(filePath, name, baseUrl);
+    } else {
+      const fileType = file.substring(file.lastIndexOf(".") + 1);
+      const [id, _] = path.basename(filePath, path.extname(filePath)).split("_");
+      if (fileType === "mp3" || fileType === "flac") {
+        const newPath = path.dirname(filePath) + `/${id}_${uuidv4()}.${fileType}`;
+        fs.renameSync(filePath, newPath);
+        const name2 = fs.readFileSync(path.dirname(filePath) + `/name.txt`, { encoding: "utf-8" });
+        await axios.patch(`${baseUrl}/music/${id}`, {
+          url: `https://www.ndzy01.com/${name2}/${path.relative(__dirname + "/resource/", newPath)}`,
+          fileType,
+          name: name2
+        });
+      }
+    }
+  }
+};
+var musicUpdateFilesTask = async (directory, name, baseUrl) => {
+  await updateFiles(directory, name, baseUrl);
+  fs.writeFileSync(`${directory}/version.json`, JSON.stringify({ version: (/* @__PURE__ */ new Date()).valueOf() }, null, 2));
+};
+var musicEndTask = async (baseUrl) => {
+  await axios(`${baseUrl}/music/update/github/data`);
+  console.log("------ndzy------", "\u5B8C\u6210", "------ndzy------");
+};
 export {
-  musicStart
+  musicEndTask,
+  musicStartTask,
+  musicUpdateFilesTask
 };

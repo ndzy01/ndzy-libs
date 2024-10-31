@@ -30,7 +30,9 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
-  musicStart: () => musicStart
+  musicEndTask: () => musicEndTask,
+  musicStartTask: () => musicStartTask,
+  musicUpdateFilesTask: () => musicUpdateFilesTask
 });
 module.exports = __toCommonJS(src_exports);
 var fs = __toESM(require("fs"));
@@ -60,7 +62,7 @@ var init = async (directory, idObj, baseUrl) => {
     }
   }
 };
-var musicStart = async (baseUrl, directory) => {
+var musicStartTask = async (directory, baseUrl) => {
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, { recursive: true });
   }
@@ -79,7 +81,41 @@ var musicStart = async (baseUrl, directory) => {
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({ version: (/* @__PURE__ */ new Date()).valueOf() }, null, 2));
   console.log("------ndzy------", "\u521D\u59CB\u5316\u6210\u529F", "------ndzy------");
 };
+var updateFiles = async (directory, name, baseUrl) => {
+  const files = fs.readdirSync(directory);
+  for (let index = 0; index < files.length; index++) {
+    const file = files[index];
+    const filePath = import_path.default.join(directory, file);
+    const stat = fs.statSync(filePath);
+    if (stat.isDirectory()) {
+      await updateFiles(filePath, name, baseUrl);
+    } else {
+      const fileType = file.substring(file.lastIndexOf(".") + 1);
+      const [id, _] = import_path.default.basename(filePath, import_path.default.extname(filePath)).split("_");
+      if (fileType === "mp3" || fileType === "flac") {
+        const newPath = import_path.default.dirname(filePath) + `/${id}_${(0, import_uuid.v4)()}.${fileType}`;
+        fs.renameSync(filePath, newPath);
+        const name2 = fs.readFileSync(import_path.default.dirname(filePath) + `/name.txt`, { encoding: "utf-8" });
+        await import_axios.default.patch(`${baseUrl}/music/${id}`, {
+          url: `https://www.ndzy01.com/${name2}/${import_path.default.relative(__dirname + "/resource/", newPath)}`,
+          fileType,
+          name: name2
+        });
+      }
+    }
+  }
+};
+var musicUpdateFilesTask = async (directory, name, baseUrl) => {
+  await updateFiles(directory, name, baseUrl);
+  fs.writeFileSync(`${directory}/version.json`, JSON.stringify({ version: (/* @__PURE__ */ new Date()).valueOf() }, null, 2));
+};
+var musicEndTask = async (baseUrl) => {
+  await (0, import_axios.default)(`${baseUrl}/music/update/github/data`);
+  console.log("------ndzy------", "\u5B8C\u6210", "------ndzy------");
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  musicStart
+  musicEndTask,
+  musicStartTask,
+  musicUpdateFilesTask
 });
