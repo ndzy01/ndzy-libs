@@ -53,7 +53,7 @@ var init = async (directory, idObj, baseUrl) => {
       if (fileType === "mp3" || fileType === "flac") {
         if (arr.length !== 2) {
           const data = await import_axios.default.post(`${baseUrl}/music`, { name: "test" });
-          console.log("------ndzy------\u65B0\u589Emusic", data, "------ndzy------");
+          console.log("------ndzy------\u65B0\u589Emusic", data.data, "------ndzy------");
           idObj.maxId++;
           const newPath = import_path.default.dirname(filePath) + `/${idObj.maxId}_${(0, import_uuid.v4)()}.${fileType}`;
           fs.renameSync(filePath, newPath);
@@ -81,30 +81,30 @@ var musicInitTask = async (directory, baseUrl) => {
   console.log("------ndzy------", "\u66F4\u65B0\u7248\u672C\u53F7", "------ndzy------");
   console.log("------ndzy------", "\u521D\u59CB\u5316\u5B8C\u6210", "------ndzy------");
 };
-var updateFiles = async (directory, name, baseUrl) => {
+var updateFiles = async (directory, githubName, baseUrl) => {
   const files = fs.readdirSync(directory);
   for (let index = 0; index < files.length; index++) {
     const file = files[index];
     const filePath = import_path.default.join(directory, file);
     const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
-      await updateFiles(filePath, name, baseUrl);
+      await updateFiles(filePath, githubName, baseUrl);
     } else {
       const fileType = file.substring(file.lastIndexOf(".") + 1);
       const [id, _] = import_path.default.basename(filePath, import_path.default.extname(filePath)).split("_");
       if (fileType === "mp3" || fileType === "flac") {
         const newPath = import_path.default.dirname(filePath) + `/${id}_${(0, import_uuid.v4)()}.${fileType}`;
         fs.renameSync(filePath, newPath);
-        const name2 = fs.readFileSync(import_path.default.dirname(filePath) + `/name.txt`, { encoding: "utf-8" });
+        const name = fs.readFileSync(import_path.default.dirname(filePath) + `/name.txt`, { encoding: "utf-8" });
         const data = await import_axios.default.patch(`${baseUrl}/music/${id}`, {
-          url: `https://www.ndzy01.com/${name2}/${import_path.default.relative(__dirname + "/resource/", newPath)}`,
+          url: `https://www.ndzy01.com/${name}/${import_path.default.relative(__dirname + "/resource/", newPath)}`,
           fileType,
-          name: name2
+          name
         });
-        console.log("------ndzy------\u65B0\u589Emusic", data, {
-          url: `https://www.ndzy01.com/${name2}/${import_path.default.relative(__dirname + "/resource/", newPath)}`,
+        console.log("------ndzy------\u65B0\u589Emusic", data.data, {
+          url: `https://www.ndzy01.com/${githubName}/${import_path.default.relative(__dirname + "/resource/", newPath)}`,
           fileType,
-          name: name2
+          name
         }, "------ndzy------");
       }
     }

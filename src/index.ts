@@ -20,7 +20,7 @@ const init = async (directory: string, idObj: { maxId: number }, baseUrl: string
       if (fileType === 'mp3' || fileType === 'flac') {
         if (arr.length !== 2) {
           const data = await axios.post(`${baseUrl}/music`, {name: 'test'});
-          console.log('------ndzy------新增music', data, '------ndzy------');
+          console.log('------ndzy------新增music', data.data, '------ndzy------');
 
           idObj.maxId++;
           const newPath = path.dirname(filePath) + `/${idObj.maxId}_${uuidv4()}.${fileType}`;
@@ -83,7 +83,7 @@ const updateFiles = async (directory: string, githubName: string, baseUrl: strin
           fileType,
           name,
         });
-        console.log('------ndzy------新增music', data, {
+        console.log('------ndzy------新增music', data.data, {
           url: `https://www.ndzy01.com/${githubName}/${path.relative(__dirname + '/resource/', newPath)}`,
           fileType,
           name,

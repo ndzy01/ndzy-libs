@@ -17,7 +17,7 @@ var init = async (directory, idObj, baseUrl) => {
       if (fileType === "mp3" || fileType === "flac") {
         if (arr.length !== 2) {
           const data = await axios.post(`${baseUrl}/music`, { name: "test" });
-          console.log("------ndzy------\u65B0\u589Emusic", data, "------ndzy------");
+          console.log("------ndzy------\u65B0\u589Emusic", data.data, "------ndzy------");
           idObj.maxId++;
           const newPath = path.dirname(filePath) + `/${idObj.maxId}_${uuidv4()}.${fileType}`;
           fs.renameSync(filePath, newPath);
@@ -45,30 +45,30 @@ var musicInitTask = async (directory, baseUrl) => {
   console.log("------ndzy------", "\u66F4\u65B0\u7248\u672C\u53F7", "------ndzy------");
   console.log("------ndzy------", "\u521D\u59CB\u5316\u5B8C\u6210", "------ndzy------");
 };
-var updateFiles = async (directory, name, baseUrl) => {
+var updateFiles = async (directory, githubName, baseUrl) => {
   const files = fs.readdirSync(directory);
   for (let index = 0; index < files.length; index++) {
     const file = files[index];
     const filePath = path.join(directory, file);
     const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
-      await updateFiles(filePath, name, baseUrl);
+      await updateFiles(filePath, githubName, baseUrl);
     } else {
       const fileType = file.substring(file.lastIndexOf(".") + 1);
       const [id, _] = path.basename(filePath, path.extname(filePath)).split("_");
       if (fileType === "mp3" || fileType === "flac") {
         const newPath = path.dirname(filePath) + `/${id}_${uuidv4()}.${fileType}`;
         fs.renameSync(filePath, newPath);
-        const name2 = fs.readFileSync(path.dirname(filePath) + `/name.txt`, { encoding: "utf-8" });
+        const name = fs.readFileSync(path.dirname(filePath) + `/name.txt`, { encoding: "utf-8" });
         const data = await axios.patch(`${baseUrl}/music/${id}`, {
-          url: `https://www.ndzy01.com/${name2}/${path.relative(__dirname + "/resource/", newPath)}`,
+          url: `https://www.ndzy01.com/${name}/${path.relative(__dirname + "/resource/", newPath)}`,
           fileType,
-          name: name2
+          name
         });
-        console.log("------ndzy------\u65B0\u589Emusic", data, {
-          url: `https://www.ndzy01.com/${name2}/${path.relative(__dirname + "/resource/", newPath)}`,
+        console.log("------ndzy------\u65B0\u589Emusic", data.data, {
+          url: `https://www.ndzy01.com/${githubName}/${path.relative(__dirname + "/resource/", newPath)}`,
           fileType,
-          name: name2
+          name
         }, "------ndzy------");
       }
     }
