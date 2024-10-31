@@ -79,11 +79,11 @@ const updateFiles = async (directory: string, githubName: string, baseUrl: strin
         const name = fs.readFileSync(path.dirname(filePath) + `/name.txt`, {encoding: 'utf-8'});
 
         const data = await axios.patch(`${baseUrl}/music/${id}`, {
-          url: `https://www.ndzy01.com/${name}/${path.relative(__dirname + '/resource/', newPath)}`,
+          url: `https://www.ndzy01.com/${githubName}/${path.relative(__dirname + '/resource/', newPath)}`,
           fileType,
           name,
         });
-        console.log('------ndzy------新增music', data.data, {
+        console.log('------ndzy------更新music', data.data, {
           url: `https://www.ndzy01.com/${githubName}/${path.relative(__dirname + '/resource/', newPath)}`,
           fileType,
           name,
