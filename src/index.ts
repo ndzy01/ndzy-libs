@@ -31,7 +31,7 @@ const init = async (directory: string, idObj: { maxId: number }, baseUrl: string
   }
 };
 
-export const musicStartTask = async (directory: string, baseUrl: string,) => {
+export const musicInitTask = async (directory: string, baseUrl: string,) => {
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, {recursive: true});
   }
@@ -87,7 +87,7 @@ const updateFiles = async (directory: string, name: string, baseUrl: string) => 
   }
 };
 
-export const musicUpdateFilesTask = async (directory: string, name: string, baseUrl: string) => {
+export const musicUpdateTask = async (directory: string, name: string, baseUrl: string) => {
   await updateFiles(directory, name, baseUrl);
 
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({version: new Date().valueOf()}, null, 2));

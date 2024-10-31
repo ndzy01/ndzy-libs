@@ -26,7 +26,7 @@ var init = async (directory, idObj, baseUrl) => {
     }
   }
 };
-var musicStartTask = async (directory, baseUrl) => {
+var musicInitTask = async (directory, baseUrl) => {
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, { recursive: true });
   }
@@ -69,7 +69,7 @@ var updateFiles = async (directory, name, baseUrl) => {
     }
   }
 };
-var musicUpdateFilesTask = async (directory, name, baseUrl) => {
+var musicUpdateTask = async (directory, name, baseUrl) => {
   await updateFiles(directory, name, baseUrl);
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({ version: (/* @__PURE__ */ new Date()).valueOf() }, null, 2));
 };
@@ -79,6 +79,6 @@ var musicEndTask = async (baseUrl) => {
 };
 export {
   musicEndTask,
-  musicStartTask,
-  musicUpdateFilesTask
+  musicInitTask,
+  musicUpdateTask
 };
