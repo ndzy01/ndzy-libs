@@ -32,6 +32,8 @@ const init = async (directory: string, idObj: { maxId: number }, baseUrl: string
 };
 
 export const musicInitTask = async (directory: string, baseUrl: string,) => {
+  console.log('------ndzy------', directory, baseUrl, '------ndzy------');
+
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, {recursive: true});
   }
@@ -88,12 +90,16 @@ const updateFiles = async (directory: string, name: string, baseUrl: string) => 
 };
 
 export const musicUpdateTask = async (directory: string, name: string, baseUrl: string) => {
+  console.log('------ndzy------', directory, name, baseUrl, '------ndzy------');
+
   await updateFiles(directory, name, baseUrl);
 
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({version: new Date().valueOf()}, null, 2));
 };
 
 export const musicEndTask = async (baseUrl: string) => {
+  console.log('------ndzy------', baseUrl, '------ndzy------');
+
   await axios(`${baseUrl}/music/update/github/data`);
   console.log('------ndzy------', '完成', '------ndzy------');
 };

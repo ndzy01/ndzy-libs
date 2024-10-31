@@ -63,6 +63,7 @@ var init = async (directory, idObj, baseUrl) => {
   }
 };
 var musicInitTask = async (directory, baseUrl) => {
+  console.log("------ndzy------", directory, baseUrl, "------ndzy------");
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, { recursive: true });
   }
@@ -106,10 +107,12 @@ var updateFiles = async (directory, name, baseUrl) => {
   }
 };
 var musicUpdateTask = async (directory, name, baseUrl) => {
+  console.log("------ndzy------", directory, name, baseUrl, "------ndzy------");
   await updateFiles(directory, name, baseUrl);
   fs.writeFileSync(`${directory}/version.json`, JSON.stringify({ version: (/* @__PURE__ */ new Date()).valueOf() }, null, 2));
 };
 var musicEndTask = async (baseUrl) => {
+  console.log("------ndzy------", baseUrl, "------ndzy------");
   await (0, import_axios.default)(`${baseUrl}/music/update/github/data`);
   console.log("------ndzy------", "\u5B8C\u6210", "------ndzy------");
 };
