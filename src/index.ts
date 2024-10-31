@@ -59,7 +59,7 @@ export const musicInitTask = async (directory: string, baseUrl: string,) => {
   console.log('------ndzy------', '初始化完成', '------ndzy------');
 };
 
-const updateFiles = async (directory: string, name: string, baseUrl: string) => {
+const updateFiles = async (directory: string, githubName: string, baseUrl: string) => {
   const files = fs.readdirSync(directory);
 
   for (let index = 0; index < files.length; index++) {
@@ -68,7 +68,7 @@ const updateFiles = async (directory: string, name: string, baseUrl: string) => 
     const stat = fs.statSync(filePath);
 
     if (stat.isDirectory()) {
-      await updateFiles(filePath, name, baseUrl); // 如果是目录，则递归调用
+      await updateFiles(filePath, githubName, baseUrl); // 如果是目录，则递归调用
     } else {
       const fileType = file.substring(file.lastIndexOf('.') + 1);
       const [id, _] = path.basename(filePath, path.extname(filePath)).split('_');
@@ -84,7 +84,7 @@ const updateFiles = async (directory: string, name: string, baseUrl: string) => 
           name,
         });
         console.log('------ndzy------新增music', data, {
-          url: `https://www.ndzy01.com/${name}/${path.relative(__dirname + '/resource/', newPath)}`,
+          url: `https://www.ndzy01.com/${githubName}/${path.relative(__dirname + '/resource/', newPath)}`,
           fileType,
           name,
         }, '------ndzy------');
