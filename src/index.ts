@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import path from 'path';
-import axios from 'axios';
+import axios, {AxiosInstance, AxiosRequestHeaders} from 'axios';
 import {v4 as uuidv4} from 'uuid';
 
 const init = async (directory: string, idObj: { maxId: number }, baseUrl: string) => {
@@ -112,3 +112,47 @@ export const musicEndTask = async (baseUrl: string) => {
 
   console.log('------ndzy------', '完成', '------ndzy------');
 };
+
+
+export class AxiosSingleton {
+  static instance: null | AxiosInstance = null;
+
+  constructor(baseURL: string) {
+    if (!AxiosSingleton.instance) {
+      AxiosSingleton.instance = axios.create({
+        baseURL: baseURL,
+        timeout: 60000
+      });
+
+      // 请求拦截器
+      AxiosSingleton.instance.interceptors.request.use(
+        config => {
+          const token = sessionStorage.getItem("token")
+
+          if (token) {
+            config.headers = {
+              ...config.headers,
+              Authorization: `Bearer ${token}`,
+            } as AxiosRequestHeaders
+          }
+
+          return config;
+        },
+        error => {
+          return Promise.reject(error);
+        }
+      );
+
+      // 响应拦截器
+      AxiosSingleton.instance.interceptors.response.use(
+        response => {
+          return response.data
+        },
+        error => {
+          return Promise.reject(error);
+        }
+      );
+    }
+    return AxiosSingleton.instance;
+  }
+}

@@ -30,6 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
+  AxiosSingleton: () => AxiosSingleton,
   musicEndTask: () => musicEndTask,
   musicInitTask: () => musicInitTask,
   musicUpdateTask: () => musicUpdateTask
@@ -122,8 +123,45 @@ var musicEndTask = async (baseUrl) => {
   await (0, import_axios.default)(`${baseUrl}/music/update/github/data`);
   console.log("------ndzy------", "\u5B8C\u6210", "------ndzy------");
 };
+var _AxiosSingleton = class {
+  constructor(baseURL) {
+    if (!_AxiosSingleton.instance) {
+      _AxiosSingleton.instance = import_axios.default.create({
+        baseURL,
+        timeout: 6e4
+      });
+      _AxiosSingleton.instance.interceptors.request.use(
+        (config) => {
+          const token = sessionStorage.getItem("token");
+          if (token) {
+            config.headers = {
+              ...config.headers,
+              Authorization: `Bearer ${token}`
+            };
+          }
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+      _AxiosSingleton.instance.interceptors.response.use(
+        (response) => {
+          return response.data;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+    }
+    return _AxiosSingleton.instance;
+  }
+};
+var AxiosSingleton = _AxiosSingleton;
+AxiosSingleton.instance = null;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  AxiosSingleton,
   musicEndTask,
   musicInitTask,
   musicUpdateTask

@@ -86,7 +86,44 @@ var musicEndTask = async (baseUrl) => {
   await axios(`${baseUrl}/music/update/github/data`);
   console.log("------ndzy------", "\u5B8C\u6210", "------ndzy------");
 };
+var _AxiosSingleton = class {
+  constructor(baseURL) {
+    if (!_AxiosSingleton.instance) {
+      _AxiosSingleton.instance = axios.create({
+        baseURL,
+        timeout: 6e4
+      });
+      _AxiosSingleton.instance.interceptors.request.use(
+        (config) => {
+          const token = sessionStorage.getItem("token");
+          if (token) {
+            config.headers = {
+              ...config.headers,
+              Authorization: `Bearer ${token}`
+            };
+          }
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+      _AxiosSingleton.instance.interceptors.response.use(
+        (response) => {
+          return response.data;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
+    }
+    return _AxiosSingleton.instance;
+  }
+};
+var AxiosSingleton = _AxiosSingleton;
+AxiosSingleton.instance = null;
 export {
+  AxiosSingleton,
   musicEndTask,
   musicInitTask,
   musicUpdateTask
